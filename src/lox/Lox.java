@@ -15,7 +15,7 @@ public class Lox {
 
 	public static void main(String[] args) throws IOException {
 		if (args.length > 1) {
-			System.out.println("Usage: jlox[script]");
+			System.out.println("Usage: jlox [script]");
 			System.exit(64);
 		} else if (args.length == 1) {
 			runFile(args[0]);
@@ -45,11 +45,11 @@ public class Lox {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
 		Parser parser = new Parser(tokens);
-		Expr expression = parser.parse();
+		List<Stmt> statements = parser.parse();
 		
 		if (hadError) return;
 		
-		interpreter.interpret(expression);
+		interpreter.interpret(statements);
 	}
 	
 	static void error(int line, String message) {
