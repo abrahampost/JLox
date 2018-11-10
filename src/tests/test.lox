@@ -1,0 +1,4 @@
+var a = 5;
+print 2 + a;
+a=3;
+print 2 + a;

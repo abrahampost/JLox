@@ -4,8 +4,9 @@ import lox.Expr.Binary;
 import lox.Expr.Grouping;
 import lox.Expr.Literal;
 import lox.Expr.Unary;
+import lox.Expr.Variable;
 
-public class AstPrinter implements Expr.Visitor<String>{
+public abstract class AstPrinter implements Expr.Visitor<String>{
 	
 	String print(Expr expr) {
 		return expr.accept(this);
@@ -43,6 +44,11 @@ public class AstPrinter implements Expr.Visitor<String>{
 		builder.append(")");
 		
 		return builder.toString();
+	}
+
+	@Override
+	public String visitVariableExpr(Variable expr) {
+		return "(" + expr.name.type + ": " + expr.name.lexeme + "=" + expr.name.literal + ")";
 	}
 	
 }
