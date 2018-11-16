@@ -9,6 +9,7 @@ import lox.Expr.Literal;
 import lox.Expr.Unary;
 import lox.Expr.Variable;
 import lox.Stmt.Block;
+import lox.Stmt.If;
 import lox.Stmt.Var;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -56,7 +57,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 				}
 				
 				if (left instanceof String && right instanceof String) {
-					return (String)left + (String) right;
+					return (String)left + (String)right;
 				}
 				
 				throw new RuntimeError(expr.operator, 
@@ -79,6 +80,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 	@Override
 	public Object visitLiteralExpr(Literal expr) {
 		return expr.value;
+	}
+	
+	@Override
+	public Object visitLogicalExpr(Expr.Logical expr) {
+		Object left = evaluate(expr.left);
+		
+		if (expr.operator.type == TokenType.OR) {
+			if (isTruthy(left)) return left;
+		} else {
+			if (!isTruthy(left)) return left;
+		}
+		
+		return evaluate(expr.right);
 	}
 
 	@Override
@@ -112,6 +126,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 	
 	public Void visitExpressionStmt(Stmt.Expression stmt) {
 		evaluate(stmt.expression);
+		return null;
+	}
+	
+	@Override
+	public Void visitIfStmt(If stmt) {
+		if (isTruthy(evaluate(stmt.condition))) {
+			execute(stmt.thenBranch);
+		} else if (stmt.elseBranch != null) {
+			execute(stmt.elseBranch);
+		}
 		return null;
 	}
 	
@@ -153,6 +177,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 		}
 		
 		environment.define(stmt.name.lexeme, value);
+		return null;
+	}
+	
+	@Override
+	public Void visitWhileStmt(Stmt.While stmt) {
+		while (isTruthy(evaluate(stmt.condition))) {
+			execute(stmt.body);
+		}
 		return null;
 	}
 
